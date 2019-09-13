@@ -1,0 +1,55 @@
+__license__ = 'GPL v3'
+__copyright__ = '2019, Ricardo Araos'
+'''
+TheNewStack.io
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+from bs4 import BeautifulSoup
+from calibre.ebooks.BeautifulSoup import Tag, NavigableString
+
+
+class TheNewStack(BasicNewsRecipe):
+    title = u'TheNewStack.io'
+    __author__ = 'Ricardo Araos'
+    description = 'news'
+    language = 'en'
+    oldest_article = 5
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    use_embedded_content = False
+    # auto_cleanup = True
+    compress_news_images = True
+    ignore_duplicate_articles = {'title', 'url'}
+    remove_empty_feeds = True
+    recursions = 0
+
+    remove_tags = [
+        dict(name='div', attrs={'id': 'post-tags'}),
+        dict(name='div', attrs={'id': 'menu'}),
+        dict(name='div', attrs={'id': 'singlePostTags'}),
+        dict(name='p', attrs={'class': 'attribution'}),
+        dict(name='div', attrs={'class': 'postshare'}),
+        dict(name='div', attrs={'class': 'infoBlockImageBlock'}),
+        dict(name='div', attrs={'class': 'infoBlockTextBlock'}),
+        dict(name='script'),
+        dict(name='footer'),
+        dict(name='meta'),
+        dict(name='link'),
+        dict(name='style'),
+        dict(name='noscript'),
+        dict(name='footer'),
+        dict(name='iframe'),
+    ]
+
+    keep_only_tags = [
+        dict(section='author'),
+        dict(name='h1'),
+        dict(attrs={'class': 'post-content'}),
+        dict(attrs={'class': 'entry-header'}),
+        dict(attrs={'id': 'post-date'})
+    ]
+
+    feeds = [(u'The NewStack', u'https://thenewstack.io/blog/feed/'),
+             ]
+

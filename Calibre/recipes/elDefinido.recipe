@@ -1,0 +1,69 @@
+#!/usr/bin/env  python2
+
+__license__ = 'GPL v3'
+__copyright__ = '2019, Ricardo Araos'
+'''
+El Definido.cl
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString
+
+
+class ElDefinido(BasicNewsRecipe):
+    title = u'ElDefinido.cl'
+    __author__ = 'Ricardo Araos'
+    description = 'news'
+    language = 'es'
+    oldest_article = 15
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    use_embedded_content = False
+    compress_news_images = True
+    ignore_duplicate_articles = {'title', 'url'}
+    remove_empty_feeds = True
+    recursions = 0
+
+    feeds = [(u'RSS', u'https://www.eldefinido.cl/feed/')]
+
+    remove_tags = [
+        dict(name='div', attrs={'id': 'colRelacionadas'}),
+        dict(name='div', attrs={'id': 'socialMEDIAdown'}),
+        dict(name='ul'),
+        dict(attrs={'id': 'extras'}),
+        dict(attrs={'id': 'bannerRP1'}),
+        dict(attrs={'id': 'tags'}),
+        dict(attrs={'id': 'socialMEDIA'}),
+        dict(attrs={'id': 'envioamigo'}),
+        dict(attrs={'class': 'textoCATEG colorR textoC'}),
+        dict(attrs={'title': 'Email'}),
+    ]
+
+    keep_only_tags = [
+        dict(attrs={'id': 'encabezadonot'}),
+        dict(attrs={'id': 'fotoPrincipal'}),
+        dict(attrs={'id': 'lecturanoticia'}),
+    ]
+
+    def preprocess_html(self, soup):
+        print soup.find(attrs={'class': 'fotoprincipal'})
+
+        return soup
+
+    def postprocess_html(self, soup, first_fetch):
+        encabezado = soup.find(attrs={'id': 'encabezadonot'})  # type: Tag
+        h1 = encabezado.find('h1')  # type: Tag
+        h1['style'] = 'font-size: 16pt; font-style: normal;'
+
+        h2 = encabezado.find('h2')  # type: Tag
+        if h2 is not None:
+            sub = Tag(soup, 'div', [('style', 'font-size: 10pt; font-style: italic;')])
+            sub.insert(0, NavigableString(h2.contents[0]))
+
+            newEncabezado = Tag(soup, 'div', None)
+            newEncabezado.insert(0, h1)
+            newEncabezado.insert(1, sub)
+
+            encabezado.replaceWith(newEncabezado)
+
+        return soup
